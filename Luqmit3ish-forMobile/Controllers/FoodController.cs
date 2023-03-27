@@ -41,5 +41,25 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
+        [HttpDelete("{id}/{user_id}")]
+        public async Task<IActionResult> DeleteDish(int id,int user_id)
+        {
+            var orders = _context.Order.Where(order => order.dish_id == id).ToList();
+
+            _context.Order.RemoveRange(orders);
+            await _context.SaveChangesAsync();
+            var dish = await _context.Dish.FindAsync(id, user_id);
+
+            if (dish == null)
+            {
+                return NotFound();
+            }
+            _context.Dish.Remove(dish);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
     }
 }

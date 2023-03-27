@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33214.272
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Luqmit3ish-forMobile", "Luqmit3ish-forMobile\Luqmit3ish-forMobile.csproj", "{AA1F7A64-A899-48C4-ABD7-37D90455FEA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA1F7A64-A899-48C4-ABD7-37D90455FEA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA1F7A64-A899-48C4-ABD7-37D90455FEA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA1F7A64-A899-48C4-ABD7-37D90455FEA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA1F7A64-A899-48C4-ABD7-37D90455FEA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E4DABC9F-ED06-4E8C-BA56-B5AB81126005}
+	EndGlobalSection
+EndGlobal

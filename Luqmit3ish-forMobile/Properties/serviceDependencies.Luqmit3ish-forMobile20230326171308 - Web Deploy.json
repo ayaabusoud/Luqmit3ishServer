@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "apis1": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.ApiManagement/service/Luqmit3ish-forMobileapi/apis/Luqmit3ish-forMobile",
+      "type": "apis.azure"
+    }
+  }
+}

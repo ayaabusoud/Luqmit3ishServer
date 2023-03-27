@@ -58,40 +58,29 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpPut("{user_id}/{dish_id}/{date}")]
-        public async Task<ActionResult<Order>>PutOrder( int user_id, int dish_id, DateTime date, [FromBody] Order order)
+        public async Task<ActionResult<Order>> PutOrder(int user_id, int dish_id, DateTime date, [FromBody] Order order)
         {
-            if (user_id != order.user_id || dish_id != order.dish_id||date!=order.date||!ModelState.IsValid)
-            {
-                Console.WriteLine(order.ToString());
-
-
-                return BadRequest();
-            }
-        
-
-            var orderResult = await _context.Order.FindAsync(user_id, dish_id, date);
-            Console.WriteLine(orderResult.ToString());
-
             try
             {
-                if (orderResult == null)
+                if (_context is null)
                 {
                     return NotFound();
                 }
-                Console.WriteLine(1);
-                _context.Entry(orderResult).State = EntityState.Modified;
+                if (user_id != order.user_id || dish_id != order.dish_id || date != order.date || !ModelState.IsValid)
+                {
+             
+                    return BadRequest();
+                }
+
+                _context.Entry(order).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                Console.WriteLine(2);
-      
+                return NoContent();
+
             }
             catch (Exception e)
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
-
-            return NoContent();
-
-
         }
 
         [HttpDelete("{user_id}/{dish_id}/{date}")]

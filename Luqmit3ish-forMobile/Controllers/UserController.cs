@@ -1,6 +1,8 @@
 ﻿using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,10 +17,14 @@ namespace Luqmit3ish_forMobile.Controllers
     public class UserController : ControllerBase
     {
         private readonly DatabaseContext _context;
-        
-        public UserController(DatabaseContext context)
+        private readonly IPasswordHasher<User> _passwordHasher;
+
+
+        public UserController(DatabaseContext context, IPasswordHasher<User> passwordHasher)
         {
             _context = context;
+            _passwordHasher = passwordHasher;
+
 
 
         }
@@ -118,5 +124,26 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+        [HttpPatch("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] User User,String NewPassword)
+        {
+    
+            var user = await _context.User.SingleOrDefaultAsync(u => u.id == User.id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+          
+            user.password = _passwordHasher.HashPassword(user,NewPassword);
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
+
     }
 }

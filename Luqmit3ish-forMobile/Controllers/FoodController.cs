@@ -25,24 +25,94 @@ namespace Luqmit3ish_forMobile.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Dish>>> GetDishes()
         {
-            try { 
-            if (_context == null)
+            try
             {
-                return NotFound();
+                if (_context == null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return await _context.Dish.ToListAsync();
             }
-            if (!ModelState.IsValid)
+            catch (Exception e)
             {
-                return BadRequest(ModelState);
+                return StatusCode(500, "Internal server error" + e.Message);
             }
-            return await _context.Dish.ToListAsync();
-            }catch (Exception e)
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<Dish>>> GetDishById(int id)
+        {
+            var dish = await _context.Dish.FindAsync(id);
+            try
+            {
+                if (_context == null || dish == null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return Ok(dish);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Dish>> CreateUser([FromBody] Dish dish)
+        {
+            try
+            {
+                if (_context is null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                _context.Dish.Add(dish);
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("GetDishes", new { id = dish.id }, dish);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<User>> UpdateDish(int id, [FromBody] Dish dish)
+        {
+            try
+            {
+                if (_context == null)
+                {
+                    return NotFound();
+                }
+                if (id != dish.id || !ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                _context.Entry(dish).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
 
         [HttpDelete("{id}/{user_id}")]
-        public async Task<IActionResult> DeleteDish(int id,int user_id)
+        public async Task<IActionResult> DeleteDish(int id, int user_id)
         {
             var orders = _context.Order.Where(order => order.dish_id == id).ToList();
 

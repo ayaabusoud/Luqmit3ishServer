@@ -26,7 +26,7 @@ namespace Luqmit3ishBackend.Data
             
 
             modelBuilder.Entity<Dish>()
-                .HasKey(o => new { o.id, o.user_id });
+                .HasKey(o => new { o.id });
         }
     }
 

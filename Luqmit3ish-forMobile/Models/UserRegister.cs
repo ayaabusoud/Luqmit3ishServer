@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Luqmit3ishBackend.Models
+namespace Luqmit3ish_forMobile.Models
 {
-    public class User
-    {
-        [Key, Required]
-        public int id { get; set; }
+	public class UserRegister
+	{
 
         [Required, RegularExpression(@"^[a-zA-Z0-9_-]{4,16}$", ErrorMessage = "The name invalid.")]
         public String name { get; set; }
@@ -27,13 +22,6 @@ namespace Luqmit3ishBackend.Models
         public String location { get; set; }
         public String type { get; set; }
         public String photo { get; set; }
-
-        public byte[] PasswordHa { get; set; } = new byte[32];
-        public byte[] PasswordSalt { get; set; } = new byte[32];
-        public string? VereficationToken { get; set; }
-        //public DateTime? VerifiedAt { get; set; }
-        public string? PasswordResetToken { get; set; }
-        public DateTime? ResetTokenExpires { get; set; }
-        
     }
 }
+

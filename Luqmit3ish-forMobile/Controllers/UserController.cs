@@ -1,4 +1,5 @@
-﻿using Luqmit3ishBackend.Data;
+﻿using Luqmit3ish_forMobile.Models;
+using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -8,7 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Luqmit3ish_forMobile.Controllers
 {
@@ -28,7 +31,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpGet]
-      public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+      public async Task<ActionResult<IEnumerable<UserRegister>>> GetUsers()
         {
             try {
             if(_context is null)
@@ -50,7 +53,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
         
         [HttpGet("{email}")]
-        public async Task<ActionResult<User>> GetUserByEmail(string email)
+        public async Task<ActionResult<UserRegister>> GetUserByEmail(string email)
         {
             try
             {
@@ -78,7 +81,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> CreateUser([FromBody]User user)
+        public async Task<ActionResult<UserRegister>> CreateUser([FromBody]UserRegister user)
         {
             try
             {
@@ -90,11 +93,34 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                user.password = _passwordHasher.HashPassword(user, user.password);
-                _context.User.Add(user);
+                if(_context.User.Any(u => u.email == user.email))
+                {
+                    return BadRequest("User alredy exists.");
+                }
+
+                CreatePasswordHash(user.password,
+                out byte[] passwordHash,
+                out byte[] passwordSalt);
+
+                var newUser = new User
+                {
+                    //id = user.id,
+                    name = user.name,
+                    email = user.email,
+                    phone = user.phone,
+                    photo=user.photo,
+                    password = user.password,
+                    location = user.location,
+                    type = user.type,
+                    PasswordHa = passwordHash,
+                    PasswordSalt = passwordSalt,
+                    VereficationToken = CreateRandomToken()
+                };
+
+                _context.User.Add(newUser);
                 await _context.SaveChangesAsync();
                 
-                return Ok(CreatedAtAction("GetUsers", new { id = user.id }, user));
+                return Ok("User successfuly created!");
             }
             catch (Exception e)
             {
@@ -102,9 +128,29 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac
+                    .ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+        }
+
+
+        private string CreateRandomToken()
+        {
+            byte[] bytes = new byte[64];
+            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            {
+                rng.GetBytes(bytes);
+            }
+            return Convert.ToHexString(bytes);
+        }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<User>> UpdateUser(int id, [FromBody]User user)
+        public async Task<ActionResult<UserRegister>> UpdateUser(int id, [FromBody] User user)
         {
             try
             {
@@ -126,9 +172,9 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
         [HttpPatch("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] User User,String NewPassword)
+        public async Task<IActionResult> ResetPassword([FromBody] User User, String NewPassword)
         {
-    
+
             var user = await _context.User.SingleOrDefaultAsync(u => u.id == User.id);
 
             if (user == null)
@@ -136,8 +182,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 return NotFound();
             }
 
-          
-            user.password = _passwordHasher.HashPassword(user,NewPassword);
+
+            user.password = _passwordHasher.HashPassword(user, NewPassword);
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 

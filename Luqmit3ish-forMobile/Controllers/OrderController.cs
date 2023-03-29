@@ -35,7 +35,8 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return BadRequest(ModelState);
             }
-            return await _context.Order.ToListAsync();
+            var users = await _context.Order.ToListAsync();
+                return Ok(users);
             }catch(Exception e)
             {
                 return StatusCode(500, "Internal server error" + e.Message);
@@ -49,7 +50,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 _context.Order.Add(order);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetOrders", new { id = order.user_id }, order);
+                return Ok(CreatedAtAction("GetOrders", new { id = order.user_id }, order));
             }
             catch(Exception e)
             {
@@ -74,7 +75,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
                 _context.Entry(order).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(NoContent());
 
             }
             catch (Exception e)
@@ -96,7 +97,7 @@ namespace Luqmit3ish_forMobile.Controllers
             _context.Order.Remove(order);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(NoContent());
         }
 
 

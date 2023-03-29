@@ -111,14 +111,15 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-        [HttpDelete("{id}/{user_id}")]
-        public async Task<IActionResult> DeleteDish(int id, int user_id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteDish(int id)
         {
+            try { 
             var orders = _context.Order.Where(order => order.dish_id == id).ToList();
 
             _context.Order.RemoveRange(orders);
             await _context.SaveChangesAsync();
-            var dish = await _context.Dish.FindAsync(id, user_id);
+            var dish = await _context.Dish.FindAsync(id);
 
             if (dish == null)
             {
@@ -128,6 +129,11 @@ namespace Luqmit3ish_forMobile.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
         }
 
 

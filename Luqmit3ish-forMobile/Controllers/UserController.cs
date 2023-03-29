@@ -25,9 +25,8 @@ namespace Luqmit3ish_forMobile.Controllers
             _context = context;
             _passwordHasher = passwordHasher;
 
-
-
         }
+
         [HttpGet]
       public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
@@ -40,13 +39,14 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return BadRequest(ModelState);
             }
-            return await _context.User.ToListAsync();
+            var users =  await _context.User.ToListAsync();
+                return Ok(users);
             }
             catch(Exception e)
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
-            
+           
         }
         
         [HttpGet("{email}")]
@@ -68,7 +68,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
-                return user;
+                return Ok(user);
             }
 
             catch (Exception e)
@@ -90,10 +90,11 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+                user.password = _passwordHasher.HashPassword(user, user.password);
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
                 
-                return CreatedAtAction("GetUsers", new { id = user.id }, user);
+                return Ok(CreatedAtAction("GetUsers", new { id = user.id }, user));
             }
             catch (Exception e)
             {
@@ -117,7 +118,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 }
                 _context.Entry(user).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok(NoContent());
             }
             catch (Exception e)
             {

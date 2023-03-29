@@ -61,6 +61,10 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
+                if(_context.User.Any(u => u.email == email))
+                {
+                    return BadRequest("User already exists");
+                }
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
@@ -189,7 +193,21 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return Ok();
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginRequest request)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(x => x.email == request.Email);
 
+            if(user is null)
+            {
+                return BadRequest("User not found.");
+            }
+            if(user.password != request.Password)
+            {
+                return BadRequest("The email or password is not correct");
+            }
+            return Ok($"Welcome Back {request.Email}");
+        }
 
 
     }

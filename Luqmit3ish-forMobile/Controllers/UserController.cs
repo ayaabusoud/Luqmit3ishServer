@@ -1,4 +1,5 @@
-﻿using Luqmit3ish_forMobile.Models;
+﻿using Luqmit3ish_forMobile.Encrypt;
+using Luqmit3ish_forMobile.Models;
 using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -85,7 +86,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<UserRegister>> CreateUser([FromBody]UserRegister user)
+        public async Task<ActionResult<User>> CreateUser([FromBody] User user)
         {
             try
             {
@@ -97,34 +98,11 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                if(_context.User.Any(u => u.email == user.email))
-                {
-                    return BadRequest("User alredy exists.");
-                }
-
-                CreatePasswordHash(user.password,
-                out byte[] passwordHash,
-                out byte[] passwordSalt);
-
-                var newUser = new User
-                {
-                    //id = user.id,
-                    name = user.name,
-                    email = user.email,
-                    phone = user.phone,
-                    photo=user.photo,
-                    password = user.password,
-                    location = user.location,
-                    type = user.type,
-                    PasswordHa = passwordHash,
-                    PasswordSalt = passwordSalt,
-                    VereficationToken = CreateRandomToken()
-                };
-
-                _context.User.Add(newUser);
+                user.password = EncryptDecrypt.EncodePasswordToBase64(user.password);
+                _context.User.Add(user);
                 await _context.SaveChangesAsync();
-                
-                return Ok("User successfuly created!");
+
+                return CreatedAtAction("GetUsers", new { id = user.id }, user);
             }
             catch (Exception e)
             {
@@ -132,26 +110,7 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac
-                    .ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
-        }
 
-
-        private string CreateRandomToken()
-        {
-            byte[] bytes = new byte[64];
-            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(bytes);
-            }
-            return Convert.ToHexString(bytes);
-        }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<UserRegister>> UpdateUser(int id, [FromBody] User user)
@@ -197,7 +156,11 @@ namespace Luqmit3ish_forMobile.Controllers
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var user = await _context.User.FirstOrDefaultAsync(x => x.email == request.Email);
-
+            request.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
+            if (request.Email == null || request.Password == null)
+            {
+                return BadRequest("Email and password should not be empty");
+            }
             if(user is null)
             {
                 return BadRequest("User not found.");

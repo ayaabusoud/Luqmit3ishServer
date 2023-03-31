@@ -172,6 +172,31 @@ namespace Luqmit3ish_forMobile.Controllers
             return Ok($"Welcome Back {request.Email}");
         }
 
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp(SignUpRequest request)
+        {
+            if (_context.User.Any(u => u.email == request.email))
+            {
+                return BadRequest("user already exist!");
+            }
+            var user = new User()
+            {
+                name=request.name,
+                email = request.email,
+                phone = request.phone,
+                password = request.password,
+                location = request.location,
+                type = request.type,
+                photo = request.photo
+            };
+            user.password = EncryptDecrypt.EncodePasswordToBase64(user.password);
+
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("Added successfuly");
+
+        }
 
     }
 }

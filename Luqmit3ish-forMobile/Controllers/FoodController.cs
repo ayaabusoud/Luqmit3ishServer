@@ -1,4 +1,5 @@
-﻿using Luqmit3ishBackend.Data;
+﻿using Luqmit3ish_forMobile.Models;
+using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -63,6 +64,45 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+
+
+        [HttpPost("AddDish")]
+        public async Task<IActionResult> AddeDish([FromBody] AddFoodRequest dish)
+        {
+            try
+            {
+                if (_context is null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var Dish = new Dish()
+                {
+                    name = dish.name,
+                    description = dish.description,
+                    keep_listed = dish.keep_listed,
+                    number = dish.number,
+                    photo = dish.photo,
+                    pick_up_time = dish.pick_up_time,
+                    type = dish.type,
+                    user_id = dish.user_id,
+                };
+                _context.Dish.Add(Dish);
+                await _context.SaveChangesAsync();
+
+                return Ok("Added successfuly");
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
+        }
+
+
+
 
         [HttpPost]
         public async Task<ActionResult<Dish>> CreateUser([FromBody] Dish dish)

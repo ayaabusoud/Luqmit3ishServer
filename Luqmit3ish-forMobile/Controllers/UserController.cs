@@ -20,6 +20,7 @@ namespace Luqmit3ish_forMobile.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private string key = "E546C8DF278CD5931069B522E695D4F2";
         private readonly DatabaseContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
 
@@ -62,16 +63,40 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
-                if(_context.User.Any(u => u.email == email))
-                {
-                    return BadRequest("User already exists");
-                }
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
 
                 var user = await _context.User.FirstOrDefaultAsync(u => u.email == email);
+                if (user is null)
+                {
+                    return NotFound();
+                }
+                return Ok(user);
+            }
+
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error " + e.Message);
+            }
+        }
+
+        [HttpGet("id/{id}")]
+        public async Task<ActionResult<UserRegister>> GetUserById(int id)
+        {
+            try
+            {
+                if (_context is null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var user = await _context.User.FirstOrDefaultAsync(u => u.id == id);
                 if (user is null)
                 {
                     return NotFound();
@@ -135,43 +160,44 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
         [HttpPatch("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] User User, String NewPassword)
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request, String NewPassword)
         {
 
-            var user = await _context.User.SingleOrDefaultAsync(u => u.id == User.id);
+            var user = await _context.User.SingleOrDefaultAsync(u => u.id == request.id);
 
             if (user == null)
             {
-                return NotFound();
+                return NotFound("userNotFound");
             }
-
-
-            user.password = _passwordHasher.HashPassword(user, NewPassword);
-            _context.Entry(user).State = EntityState.Modified;
+            user.password = EncryptDecrypt.EncodePasswordToBase64(NewPassword);
             await _context.SaveChangesAsync();
-
-            return Ok();
+            return Ok("Password updated");
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
-            var user = await _context.User.FirstOrDefaultAsync(x => x.email == request.Email);
-            request.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
-            if (request.Email == null || request.Password == null)
-            {
-                return BadRequest("Email and password should not be empty");
+            try {
+                var user = await _context.User.FirstOrDefaultAsync(x => x.email == request.Email);
+                request.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
+                if (request.Email == null || request.Password == null)
+                {
+                    return BadRequest("Email and password should not be empty");
+                }
+                if (user is null)
+                {
+                    return BadRequest("User not found.");
+                }
+                if (user.password != request.Password)
+                {
+                    return BadRequest("The email or password is not correct");
+                }
+                return Ok($"Welcome Back {request.Email}");
             }
-            if(user is null)
+            catch (Exception e)
             {
-                return BadRequest("User not found.");
+                return StatusCode(500, "Internal server error" + e.Message);
             }
-            if(user.password != request.Password)
-            {
-                return BadRequest("The email or password is not correct");
-            }
-            return Ok($"Welcome Back {request.Email}");
         }
-
 
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,6 +43,30 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+        [HttpGet("DishCard")]
+        public IQueryable<Object> GetDishCards()
+        {
+            
+                return from d in _context.Dish
+                       join u in _context.User
+                       on d.user_id equals u.id 
+                       select new
+                       {
+                           id = d.id,
+                           restaurantId = d.user_id,
+                           dishName = d.name,
+                           restaurantName = u.name,
+                           description = d.description,
+                           type = d.type,
+                           photo = d.photo,
+                           keepValid = d.keep_listed,
+                           pickUpTime = d.pick_up_time,
+                           quantity = d.number
+
+                        };
+            
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<Dish>>> GetDishById(int id)
         {
@@ -57,6 +82,35 @@ namespace Luqmit3ish_forMobile.Controllers
                     return BadRequest(ModelState);
                 }
                 return Ok(dish);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
+        }
+        [HttpGet("Restaurant/{user_id}")]
+        public async Task<ActionResult<ObservableCollection<Dish>>> GetDishByResId(int user_id)
+        {
+            
+            try
+            {
+                ObservableCollection<Dish> dishes = new ObservableCollection<Dish>();
+                if (_context == null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var allDishes = await _context.Dish.ToListAsync();
+                foreach(Dish dish in allDishes)
+                {
+                    if (dish.user_id == user_id)
+                        dishes.Add(dish);
+                }
+                return dishes;
+
             }
             catch (Exception e)
             {

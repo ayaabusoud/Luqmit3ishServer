@@ -33,27 +33,28 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpGet]
-      public async Task<ActionResult<IEnumerable<UserRegister>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserRegister>>> GetUsers()
         {
-            try {
-            if(_context is null)
+            try
             {
-                return NotFound();
-            }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var users =  await _context.User.ToListAsync();
+                if (_context is null)
+                {
+                    return NotFound();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var users = await _context.User.ToListAsync();
                 return Ok(users);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
-           
+
         }
-        
+
         [HttpGet("{email}")]
         public async Task<ActionResult<UserRegister>> GetUserByEmail(string email)
         {
@@ -176,7 +177,8 @@ namespace Luqmit3ish_forMobile.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
-            try {
+            try
+            {
                 var user = await _context.User.FirstOrDefaultAsync(x => x.email == request.Email);
                 request.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
                 if (request.Email == null || request.Password == null)
@@ -197,6 +199,32 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
+        }
+
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp(SignUpRequest request)
+        {
+            if (_context.User.Any(u => u.email == request.email))
+            {
+                return BadRequest("user already exist!");
+            }
+            var user = new User()
+            {
+                name = request.name,
+                email = request.email,
+                phone = request.phone,
+                password = request.password,
+                location = request.location,
+                type = request.type,
+                photo = request.photo
+            };
+            user.password = EncryptDecrypt.EncodePasswordToBase64(user.password);
+
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("Added successfuly");
+
         }
 
     }

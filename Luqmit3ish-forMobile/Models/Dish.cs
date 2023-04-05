@@ -18,7 +18,7 @@ namespace Luqmit3ishBackend.Models
         public String type { get; set; }
         public String photo { get; set; }
         public int keep_listed { get; set; }
-        public DateTime pick_up_time { get; set; }
+        public String pick_up_time { get; set; }
         [Required(ErrorMessage = "Dishes number is required")]
         public int number { get; set; }
     }

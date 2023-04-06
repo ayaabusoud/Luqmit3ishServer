@@ -183,7 +183,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<User>> UpdateDish(int id, [FromBody] AddFoodRequest dish)
+        public async Task<ActionResult<User>> UpdateDish(int id, [FromBody] Dish dish)
         {
             try
             {
@@ -191,7 +191,10 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
-                
+                if (id != dish.id || !ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _context.Entry(dish).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 return NoContent();

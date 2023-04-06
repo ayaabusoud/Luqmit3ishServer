@@ -139,7 +139,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<UserRegister>> UpdateUser(int id, [FromBody] SignUpRequest user)
+        public async Task<ActionResult<UserRegister>> UpdateUser(int id, [FromBody] User user)
         {
             try
             {
@@ -147,7 +147,10 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
-                
+                if (id != user.id || !ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 _context.Entry(user).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 return Ok(NoContent());

@@ -232,7 +232,7 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
         
-        [HttpPost("UploadPhoto")]
+        [HttpPost("UploadPhoto/{food_id}")]
         public async Task<IActionResult> UploadPhoto(IFormFile photo, int food_id)
         {
             if (photo == null || photo.Length == 0)

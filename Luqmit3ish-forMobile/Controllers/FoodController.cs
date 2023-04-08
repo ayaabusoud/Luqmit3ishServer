@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 
 namespace Luqmit3ish_forMobile.Controllers
 {
@@ -229,6 +231,43 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+        
+        [HttpPost("UploadPhoto")]
+        public async Task<IActionResult> UploadPhoto(IFormFile photo, int food_id)
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest("No photo uploaded");
+            }
+
+            try
+            {
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish;AccountKey=f/TDE9TuOgav6ngJpBTVsyRglB6wdUADGdgizS3384r/jf4BzXs9+iaNaCdDMLs14VBWymLievaM+ASt5fnh5w==;EndpointSuffix=core.windows.net";
+                string containerName = "photos";
+
+                
+                CloudBlobClient blobClient = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
+               
+                CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+                
+                CloudBlockBlob blob = container.GetBlockBlobReference($"{food_id}_{photo.FileName}");
+                using (Stream stream = photo.OpenReadStream())
+                {
+                    await blob.UploadFromStreamAsync(stream);
+                }
+                
+                Dish dish = await _context.Dish.FirstOrDefaultAsync(u => u.id == food_id);
+                dish.photo = blob.Uri.ToString();
+                await _context.SaveChangesAsync();
+
+                return Ok(blob.Uri.ToString());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error uploading photo: {ex.Message}");
+            }
+        }
+
 
 
     }

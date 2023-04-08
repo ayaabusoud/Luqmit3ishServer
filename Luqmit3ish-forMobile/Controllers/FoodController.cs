@@ -150,7 +150,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 _context.Dish.Add(Dish);
                 await _context.SaveChangesAsync();
 
-                return Ok("Added successfuly");
+                return Ok(Dish);
             }
             catch (Exception e)
             {

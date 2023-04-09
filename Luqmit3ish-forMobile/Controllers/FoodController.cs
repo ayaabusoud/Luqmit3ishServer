@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
+using System.IO;
 
 namespace Luqmit3ish_forMobile.Controllers
 {
@@ -147,7 +150,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 _context.Dish.Add(Dish);
                 await _context.SaveChangesAsync();
 
-                return Ok("Added successfuly");
+                return Ok(Dish);
             }
             catch (Exception e)
             {
@@ -229,6 +232,43 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+        
+        [HttpPost("UploadPhoto/{food_id}")]
+        public async Task<IActionResult> UploadPhoto(IFormFile photo, int food_id)
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest("No photo uploaded");
+            }
+
+            try
+            {
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ishbold;AccountKey=kg7Rt4+3QsYEu5kpbzHR3noLcYJ7ge/8OeyD9pZGY1/fNSSVPIOdbqgIg5Ad1dpyhPa06IcPNiBQ+AStitn67Q==;EndpointSuffix=core.windows.net";
+                string containerName = "photos";
+
+                
+                CloudBlobClient blobClient = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
+               
+                CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+                
+                CloudBlockBlob blob = container.GetBlockBlobReference($"{food_id}_{photo.FileName}");
+                using (Stream stream = photo.OpenReadStream())
+                {
+                    await blob.UploadFromStreamAsync(stream);
+                }
+                
+                Dish dish = await _context.Dish.FirstOrDefaultAsync(u => u.id == food_id);
+                dish.photo = blob.Uri.ToString();
+                await _context.SaveChangesAsync();
+
+                return Ok(blob.Uri.ToString());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error uploading photo: {ex.Message}");
+            }
+        }
+
 
 
     }

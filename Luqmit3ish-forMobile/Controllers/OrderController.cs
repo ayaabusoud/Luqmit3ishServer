@@ -232,8 +232,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
-  [HttpPatch("/api/CharityOrders/{id}")]
-        public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
+      public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
         {
             var order = await _context.Order.SingleOrDefaultAsync(o => o.id == id);
             var food = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
@@ -245,18 +244,22 @@ namespace Luqmit3ish_forMobile.Controllers
             if (operation == "plus")
             {
                 order.number_of_dish++;
-                food.number++;
+                food.number--;
             }
             else
             {
                 order.number_of_dish--;
-                food.number--;
+                food.number++;
+                if (order.number_of_dish == 0)
+                {
+                    _context.Order.Remove(order);
+                }
+               
             }
             await _context.SaveChangesAsync();
 
             return Ok();
         }
-
 
     }
 }

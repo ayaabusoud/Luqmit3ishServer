@@ -25,11 +25,11 @@ namespace Luqmit3ishBackend.Data
                 .HasKey(u => u.id);
 
             modelBuilder.Entity<Order>()
-                .HasKey(o => new { o.user_id, o.dish_id, o.date });
-            
+                .HasKey(o => o.id);
+
 
             modelBuilder.Entity<Dish>()
-                .HasKey(o => new { o.id });
+                .HasKey(d => d.id);
         }
     }
 

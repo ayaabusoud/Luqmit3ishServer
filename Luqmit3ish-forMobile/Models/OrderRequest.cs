@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Luqmit3ishBackend.Models
+namespace Luqmit3ish_forMobile.Models
 {
-    public class Order
+    public class OrderRequest
     {
-        public int id { get; set; }
-
         [Required(ErrorMessage = "restaurant id is required")]
         public int res_id { get; set; }
 
@@ -28,7 +25,6 @@ namespace Luqmit3ishBackend.Models
         [Required(ErrorMessage = "recieve is required")]
 
         public Boolean receive { get; set; }
-
 
     }
 }

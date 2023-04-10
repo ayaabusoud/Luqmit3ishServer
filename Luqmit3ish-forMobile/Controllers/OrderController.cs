@@ -112,8 +112,8 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-        [HttpGet("/api/OrderPage/{id}")]
-        public async Task<List<OrderCard>> GetOrdersGroupByRestaurantId(int id)
+        [HttpGet("/api/CharityOrders/{id}")]
+        public async Task<List<OrderCard>> GetCharityOrders(int id)
         {
             var orders = from o in _context.Order
                          join d in _context.Dish
@@ -152,8 +152,48 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
-        [HttpGet("/api/OrderPage")]
-        public async Task<List<OrderCard>> GetOrdersGroupByRestaurant()
+        [HttpGet("/api/RestaurantOrders/{id}")]
+        public async Task<List<OrderCard>> GetRestaurantOrders(int id, bool receive)
+        {
+            var orders = from o in _context.Order
+                         join d in _context.Dish
+                         on o.dish_id equals d.id
+                         select new OrderDish
+                         {
+                             id = o.id,
+                             res_id = o.res_id,
+                             char_id = o.char_id,
+                             dish_id = o.dish_id,
+                             dishName = d.name,
+                             date = o.date,
+                             number_of_dish = o.number_of_dish,
+                             receive = o.receive
+                         };
+
+            var myDictionary = orders.ToList()
+           .Where(x => x.receive == receive && x.res_id == id)
+           .GroupBy(x => x.res_id)
+           .OrderBy(x => x.Key)
+           .ToDictionary(x => x.Key, x => x.Select(y => y).ToList());
+
+            List<OrderCard> myList = new List<OrderCard>();
+            foreach (var item in myDictionary)
+            {
+                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                OrderCard result = new OrderCard
+                {
+                    id = item.Key,
+                    restaurantName = restaurant.name,
+                    restaurantImage = restaurant.photo,
+                    data = item.Value
+                };
+                myList.Add(result);
+            }
+            return myList;
+        }
+
+        [HttpGet("/api/AllCharitiesOrders")]
+        public async Task<List<OrderCard>> GetAllCharityOrders()
         {
             var orders =  from o in _context.Order
                      join d in _context.Dish

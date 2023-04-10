@@ -19,14 +19,12 @@ namespace Luqmit3ishBackend.Models
 
         [Required(ErrorMessage = "dish id is required")]
         public int dish_id { get; set; }
-
-
         public DateTime date { get; set; }
+
         [Required(ErrorMessage = "number of dishes is required")]
-
         public int number_of_dish { get; set; }
-        [Required(ErrorMessage = "recieve is required")]
 
+        [Required(ErrorMessage = "recieve is required")]
         public Boolean receive { get; set; }
 
 

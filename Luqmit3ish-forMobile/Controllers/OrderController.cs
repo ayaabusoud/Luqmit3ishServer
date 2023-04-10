@@ -232,6 +232,24 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
+[HttpPatch("/api/CharityOrders/{id}")]
+        public async Task<IActionResult> UpdateOrderDishCount(int id, [FromBody] EditOrderRequest orderPatch)
+        {
+            var order = await _context.Order.SingleOrDefaultAsync(o => o.id == id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (orderPatch.NumberOfDish.HasValue)
+            {
+                order.number_of_dish = orderPatch.NumberOfDish.Value;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
 
     }
 }

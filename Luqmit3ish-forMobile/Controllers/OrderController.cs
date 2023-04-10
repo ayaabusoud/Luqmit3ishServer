@@ -143,8 +143,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 OrderCard result = new OrderCard
                 {
                     id = item.Key,
-                    restaurantName = restaurant.name,
-                    restaurantImage = restaurant.photo,
+                    name = restaurant.name,
+                    image = restaurant.photo,
                     data = item.Value
                 };
                 myList.Add(result);
@@ -172,7 +172,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
             var myDictionary = orders.ToList()
            .Where(x => x.receive == receive && x.res_id == id)
-           .GroupBy(x => x.res_id)
+           .GroupBy(x => x.char_id)
            .OrderBy(x => x.Key)
            .ToDictionary(x => x.Key, x => x.Select(y => y).ToList());
 
@@ -183,8 +183,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 OrderCard result = new OrderCard
                 {
                     id = item.Key,
-                    restaurantName = restaurant.name,
-                    restaurantImage = restaurant.photo,
+                    name = restaurant.name,
+                    image = restaurant.photo,
                     data = item.Value
                 };
                 myList.Add(result);
@@ -223,8 +223,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 OrderCard result = new OrderCard
                 {
                     id = item.Key,
-                    restaurantName = restaurant.name,
-                    restaurantImage = restaurant.photo,
+                    name = restaurant.name,
+                    image = restaurant.photo,
                     data = item.Value
                 };
                 myList.Add(result);

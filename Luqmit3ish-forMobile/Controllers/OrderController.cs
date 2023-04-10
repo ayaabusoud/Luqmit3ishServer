@@ -231,7 +231,8 @@ namespace Luqmit3ish_forMobile.Controllers
             }
             return myList;
         }
-
+        
+      [HttpPatch("/api/CharityOrders/{id}")]
       public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
         {
             var order = await _context.Order.SingleOrDefaultAsync(o => o.id == id);

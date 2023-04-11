@@ -44,22 +44,31 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-        [HttpPost]
+         [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody]OrderRequest request)
         {
             try {
-                var order = new Order()
+                var oldOrder = await _context.Order.SingleOrDefaultAsync(d => d.dish_id == request.dish_id &&
+                                                                          d.char_id == request.char_id &&
+                                                                          d.receive == false);
+                if (oldOrder == null)
                 {
-                    res_id = request.res_id,
-                    char_id = request.char_id,
-                    dish_id = request.dish_id,
-                    date = request.date,
-                    number_of_dish = request.number_of_dish,
-                    receive = request.receive,
-                };
-                _context.Order.Add(order);
+                    var order = new Order()
+                    {
+                        res_id = request.res_id,
+                        char_id = request.char_id,
+                        dish_id = request.dish_id,
+                        date = request.date,
+                        number_of_dish = request.number_of_dish,
+                        receive = request.receive,
+                    };
+                    _context.Order.Add(order);
+                    await _context.SaveChangesAsync();
+                    return Ok("Added successfuly");
+                }
+                oldOrder.number_of_dish+= request.number_of_dish;
                 await _context.SaveChangesAsync();
-                return Ok("Added successfuly");
+                return Ok("The number of dish increased successfully");
             }
             catch (Exception e)
             {

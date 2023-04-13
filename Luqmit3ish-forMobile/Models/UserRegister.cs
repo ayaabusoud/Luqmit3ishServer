@@ -6,7 +6,6 @@ namespace Luqmit3ish_forMobile.Models
 	public class UserRegister
 	{
 
-        [Required, RegularExpression(@"^[a-zA-Z0-9_-]{4,16}$", ErrorMessage = "The name invalid.")]
         public String name { get; set; }
 
 

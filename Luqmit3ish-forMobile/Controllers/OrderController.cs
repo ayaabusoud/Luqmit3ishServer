@@ -62,11 +62,15 @@ namespace Luqmit3ish_forMobile.Controllers
                         number_of_dish = request.number_of_dish,
                         receive = request.receive,
                     };
+                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
+                    dish.number -= order.number_of_dish;
                     _context.Order.Add(order);
                     await _context.SaveChangesAsync();
                     return Ok("Added successfuly");
                 }
                 oldOrder.number_of_dish+= request.number_of_dish;
+                var newDish = await _context.Dish.SingleOrDefaultAsync(d => d.id == oldOrder.dish_id);
+                newDish.number -= request.number_of_dish;
                 await _context.SaveChangesAsync();
                 return Ok("The number of dish increased successfully");
             }
@@ -93,9 +97,11 @@ namespace Luqmit3ish_forMobile.Controllers
             return Ok(NoContent());
         }
 
-        [HttpGet("{email}")]
-        public async Task<ActionResult<UserRegister>> GetUserByEmail(int id)
-        {
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Order>> GetOrderById(int id) 
+        { 
+    
             try
             {
                 if (_context is null)
@@ -107,12 +113,12 @@ namespace Luqmit3ish_forMobile.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var user = await _context.User.FirstOrDefaultAsync(u => u.id == id);
-                if (user is null)
+                var order = await _context.Order.FirstOrDefaultAsync(u => u.id == id);
+                if (order is null)
                 {
                     return NotFound();
                 }
-                return Ok(user);
+                return Ok(order);
             }
 
             catch (Exception e)
@@ -161,7 +167,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
-        [HttpGet("/api/RestaurantOrders/{id}")]
+        [HttpGet("/api/RestaurantOrders/{id}/{receive:bool}")]
         public async Task<List<OrderCard>> GetRestaurantOrders(int id, bool receive)
         {
             var orders = from o in _context.Order
@@ -188,12 +194,12 @@ namespace Luqmit3ish_forMobile.Controllers
             List<OrderCard> myList = new List<OrderCard>();
             foreach (var item in myDictionary)
             {
-                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                var charity = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
                 OrderCard result = new OrderCard
                 {
                     id = item.Key,
-                    name = restaurant.name,
-                    image = restaurant.photo,
+                    name = charity.name,
+                    image = charity.photo,
                     data = item.Value
                 };
                 myList.Add(result);
@@ -271,5 +277,34 @@ namespace Luqmit3ish_forMobile.Controllers
             return Ok();
         }
 
+        [HttpPatch("/api/CharityOrders/{id}/{operation}")]
+        public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
+        {
+            var order = await _context.Order.SingleOrDefaultAsync(o => o.id == id);
+            var food = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            if (operation == "plus")
+            {
+                order.number_of_dish++;
+                food.number--;
+            }
+            else
+            {
+                order.number_of_dish--;
+                food.number++;
+                if (order.number_of_dish == 0)
+                {
+                    _context.Order.Remove(order);
+                }
+
+            }
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }

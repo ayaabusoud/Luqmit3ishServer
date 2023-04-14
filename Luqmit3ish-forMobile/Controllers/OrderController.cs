@@ -247,6 +247,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
+
         [HttpDelete("delete/{charityId}/{restaurantId}")]
         public async Task<IActionResult> DeleteOrderCard(int charityId = 0, int restaurantId = 0)
         {
@@ -266,36 +267,6 @@ namespace Luqmit3ish_forMobile.Controllers
             return Ok();
         }
     
-
-    [HttpPatch("/api/CharityOrders/{id}")]
-      public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
-        {
-            var order = await _context.Order.SingleOrDefaultAsync(o => o.id == id);
-            var food = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            if (operation == "plus")
-            {
-                order.number_of_dish++;
-                food.number--;
-            }
-            else
-            {
-                order.number_of_dish--;
-                food.number++;
-                if (order.number_of_dish == 0)
-                {
-                    _context.Order.Remove(order);
-                }
-               
-            }
-            await _context.SaveChangesAsync();
-
-            return Ok();
-        }
 
         [HttpPatch("/api/CharityOrders/{id}/{operation}")]
         public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)

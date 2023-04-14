@@ -70,6 +70,64 @@ namespace Luqmit3ish_forMobile.Controllers
                         };
             
         }
+        [HttpGet("Search/{searchRequest}/{type}")]
+        public List<DishCard> GetSearchedDishCards(string searchRequest, string type)
+        {
+
+            var dishes = from d in _context.Dish
+                         join u in _context.User
+                         on d.user_id equals u.id
+                         select new DishCard
+                         {
+                             id = d.id,
+                             restaurantId = d.user_id,
+                             dishName = d.name,
+                             restaurantName = u.name,
+                             description = d.description,
+                             type = d.type,
+                             photo = d.photo,
+                             keepValid = d.keep_listed,
+                             pickUpTime = d.pick_up_time,
+                             quantity = d.number
+
+                         };
+
+            List<DishCard> searchResult = new List<DishCard>();
+
+            if (type == "Restaurants")
+            {
+                foreach (DishCard dish in dishes)
+                {
+                    if (dish.restaurantName.ToLower().Contains(searchRequest.ToLower()))
+                    {
+                        searchResult.Add(dish);
+                    }
+                }
+            }
+            else if (type == "Dishes")
+            {
+                foreach (DishCard dish in dishes)
+                {
+                    if (dish.dishName.ToLower().Contains(searchRequest.ToLower()))
+                    {
+                        searchResult.Add(dish);
+                    }
+                }
+            }
+            else
+            {
+                foreach (DishCard dish in dishes)
+                {
+                    if (dish.dishName.ToLower().Contains(searchRequest.ToLower()) || dish.restaurantName.ToLower().Equals(searchRequest.ToLower()))
+                    {
+                        searchResult.Add(dish);
+                    }
+                }
+            }
+
+
+            return searchResult;
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<Dish>>> GetDishById(int id)
@@ -268,6 +326,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, $"Error uploading photo: {ex.Message}");
             }
         }
+
 
 
 

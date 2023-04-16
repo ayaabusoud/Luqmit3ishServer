@@ -160,9 +160,15 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
-        [HttpPatch("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request, String NewPassword)
+        [HttpPatch("resetPassword/{id}/{newPassword}")]
+        public async Task<IActionResult> ResetPassword(int id, String newPassword)
         {
+        try{
+            ResetPasswordRequest request = new ResetPasswordRequest
+            {
+                id = id,
+                password = newPassword,
+            };
 
             var user = await _context.User.SingleOrDefaultAsync(u => u.id == request.id);
 
@@ -170,9 +176,13 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return NotFound("userNotFound");
             }
-            user.password = EncryptDecrypt.EncodePasswordToBase64(NewPassword);
+            user.password = EncryptDecrypt.EncodePasswordToBase64(request.password);
             await _context.SaveChangesAsync();
             return Ok("Password updated");
+            }catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)

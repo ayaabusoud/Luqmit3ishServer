@@ -297,5 +297,21 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return Ok();
         }
+        [HttpPatch("/api/{id}/receive")]
+        public async Task<IActionResult> UpdateOrderRecieveStatus(int id)
+        {
+            try
+            {
+                var order = await _context.Order.FindAsync(id);
+                if (order.receive == true) return Ok();
+                order.receive = true;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
+        }
     }
 }

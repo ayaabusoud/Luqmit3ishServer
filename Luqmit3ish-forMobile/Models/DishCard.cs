@@ -17,5 +17,6 @@ namespace Luqmit3ish_forMobile.Models
         public int keepValid { get; set; }
         public string pickUpTime { get; set; }
         public int quantity { get; set; }
+        public string RestaurantImage { get; set; }
     }
 }

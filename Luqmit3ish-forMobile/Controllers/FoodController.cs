@@ -301,8 +301,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ishbold;AccountKey=kg7Rt4+3QsYEu5kpbzHR3noLcYJ7ge/8OeyD9pZGY1/fNSSVPIOdbqgIg5Ad1dpyhPa06IcPNiBQ+AStitn67Q==;EndpointSuffix=core.windows.net";
-                string containerName = "photos";
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish5;AccountKey=wf/sCEDpRkFExVY91mqUaZgzd/H0v1sl/a69oaGYtGGVMr9a4KnuHY5YCeKgtiQSWhiUoGEwjZyE+AStqTYKQA==;EndpointSuffix=core.windows.net"; string containerName = "photos";
 
                 
                 CloudBlobClient blobClient = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();

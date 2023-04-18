@@ -31,7 +31,21 @@ namespace Luqmit3ish_forMobile.Controllers
             _passwordHasher = passwordHasher;
 
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.User.FindAsync(id);
 
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            _context.User.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(NoContent());
+        }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserRegister>>> GetUsers()
         {

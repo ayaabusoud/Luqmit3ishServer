@@ -297,10 +297,11 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return Ok();
         }
-        [HttpGet("/BestRestaurant")]
+        
+  [HttpGet("/BestRestaurant")]
         public async Task<DishesOrder> GetBestRestaurant()
         {
-
+             
             int max = 0;
             DishesOrder bestRestarant = null;
             var orders = _context.Order.ToList()
@@ -321,12 +322,31 @@ namespace Luqmit3ish_forMobile.Controllers
             }
             foreach (var item in myList)
             {
-                if (item.Dishes > max)
+               if(item.Dishes > max)
                 {
                     bestRestarant = item;
                 }
             }
             return bestRestarant;
+        }
+            
+
+        [HttpPatch("/api/{id}/receive")]
+        public async Task<IActionResult> UpdateOrderRecieveStatus(int id)
+        {
+            try
+            {
+                var order = await _context.Order.FindAsync(id);
+                if (order.receive == true) return Ok();
+                order.receive = true;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Internal server error" + e.Message);
+            }
+
         }
     }
 }

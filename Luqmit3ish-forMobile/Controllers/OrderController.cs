@@ -297,6 +297,40 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return Ok();
         }
+        
+  [HttpGet("/BestRestaurant")]
+        public async Task<DishesOrder> GetBestRestaurant()
+        {
+             
+            int max = 0;
+            DishesOrder bestRestarant = null;
+            var orders = _context.Order.ToList()
+           .Where(x => x.receive == true && x.date <= DateTime.Now && x.date >= DateTime.Now.AddMonths(-1))
+           .GroupBy(x => x.res_id)
+           .ToDictionary(x => x.Key, x => x.Sum(y => y.number_of_dish));
+
+            List<DishesOrder> myList = new List<DishesOrder>();
+            foreach (var item in orders)
+            {
+                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                DishesOrder result = new DishesOrder
+                {
+                    RestaurantName = restaurant.name,
+                    Dishes = item.Value
+                };
+                myList.Add(result);
+            }
+            foreach (var item in myList)
+            {
+               if(item.Dishes > max)
+                {
+                    bestRestarant = item;
+                }
+            }
+            return bestRestarant;
+        }
+            
+
         [HttpPatch("/api/{id}/receive")]
         public async Task<IActionResult> UpdateOrderRecieveStatus(int id)
         {
@@ -312,6 +346,7 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
+
         }
     }
 }

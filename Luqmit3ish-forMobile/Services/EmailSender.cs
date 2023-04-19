@@ -10,15 +10,15 @@ namespace Luqmit3ish_forMobile.Services
     public class EmailSender
     {
         public int code { get; set; } = 0;
-        public async Task SendEmailAsync(string recipientName, string recipient, string senderEmailAddress)
+        public async Task SendEmailAsync(string recipientName, string recipient)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("Luqmit 3ish", senderEmailAddress));
+            message.From.Add(new MailboxAddress("Luqmit 3ish", "lumit3ish14@gmail.com"));
             message.To.Add(new MailboxAddress("", recipient));
             message.Subject = "Welcome to Luqmit 3ish: Verify Your Account";
 
             var random = new Random();
-            code = random.Next(100000, 999999);
+            code = random.Next(1000, 9999);
 
             var builder = new BodyBuilder();
             builder.HtmlBody = string.Format("<p>Dear {0},</p>" +

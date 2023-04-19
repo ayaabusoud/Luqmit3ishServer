@@ -22,7 +22,6 @@ namespace Luqmit3ish_forMobile.Controllers
         {
             _context = context;
 
-
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()

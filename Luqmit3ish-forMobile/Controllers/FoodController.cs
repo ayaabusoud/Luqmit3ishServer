@@ -215,33 +215,33 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
-
-
-
-
-        [HttpPost]
-        public async Task<ActionResult<Dish>> CreateUser([FromBody] Dish dish)
+        [HttpGet("DishCard/{id}")]
+        public IQueryable<DishCard> GetDishCardById(int id)
         {
-            try
-            {
-                if (_context is null)
-                {
-                    return NotFound();
-                }
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-                _context.Dish.Add(dish);
-                await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetDishes", new { id = dish.id }, dish);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Internal server error" + e.Message);
-            }
+            return from d in _context.Dish
+                   join u in _context.User
+                   on d.user_id equals u.id
+                   where d.id == id
+                   select new DishCard
+                   {
+                       id = d.id,
+                       restaurantId = d.user_id,
+                       dishName = d.name,
+                       restaurantName = u.name,
+                       description = d.description,
+                       type = d.type,
+                       photo = d.photo,
+                       RestaurantImage = u.photo,
+                       keepValid = d.keep_listed,
+                       pickUpTime = d.pick_up_time,
+                       quantity = d.number
+
+                   };
+
         }
+
+
 
         [HttpPut("{id}")]
         public async Task<ActionResult<User>> UpdateDish(int id, [FromBody] Dish dish)
@@ -301,8 +301,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ishbold;AccountKey=kg7Rt4+3QsYEu5kpbzHR3noLcYJ7ge/8OeyD9pZGY1/fNSSVPIOdbqgIg5Ad1dpyhPa06IcPNiBQ+AStitn67Q==;EndpointSuffix=core.windows.net";
-                string containerName = "photos";
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish5;AccountKey=wf/sCEDpRkFExVY91mqUaZgzd/H0v1sl/a69oaGYtGGVMr9a4KnuHY5YCeKgtiQSWhiUoGEwjZyE+AStqTYKQA==;EndpointSuffix=core.windows.net"; string containerName = "photos";
 
                 
                 CloudBlobClient blobClient = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();

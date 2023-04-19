@@ -250,6 +250,42 @@ namespace Luqmit3ish_forMobile.Controllers
             return Ok("Added successfuly");
 
         }
+        
+        [HttpPost("UploadPhoto/{user_id}")]
+        public async Task<IActionResult> UploadUserPhoto(IFormFile photo, int user_id)
+        {
+            if (photo == null || photo.Length == 0)
+            {
+                return BadRequest("No photo uploaded");
+            }
+
+            try
+            {
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish5;AccountKey=wf/sCEDpRkFExVY91mqUaZgzd/H0v1sl/a69oaGYtGGVMr9a4KnuHY5YCeKgtiQSWhiUoGEwjZyE+AStqTYKQA==;EndpointSuffix=core.windows.net";
+                string containerName = "photos";
+
+
+                CloudBlobClient blobClient = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
+
+                CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+
+                CloudBlockBlob blob = container.GetBlockBlobReference($"{user_id}_{photo.FileName}");
+                using (Stream stream = photo.OpenReadStream())
+                {
+                    await blob.UploadFromStreamAsync(stream);
+                }
+
+                User user = await _context.User.FirstOrDefaultAsync(u => u.id == user_id);
+                user.photo = blob.Uri.ToString();
+                await _context.SaveChangesAsync();
+
+                return Ok(blob.Uri.ToString());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error uploading photo: {ex.Message}");
+            }
+        }
 
     }
 }

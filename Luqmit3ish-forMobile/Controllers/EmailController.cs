@@ -5,6 +5,8 @@ using Luqmit3ish_forMobile.Services;
 
 namespace Luqmit3ish_forMobile.Controllers
 {
+    [Route("api/Email")]
+    [ApiController]
     public class EmailController : ControllerBase
     {
         private readonly EmailSender _emailSender;

@@ -12,16 +12,17 @@ namespace Luqmit3ish_forMobile.Controllers
         {
             _emailSender = new EmailSender();
         }
+        
         [HttpPost("send")]
-        public async Task<IActionResult> SendEmail(string recipientName, string recipient, string senderEmailAddress)
+        public async Task<IActionResult> SendEmail(string recipientName, string recipientEmail)
         {
-            if (string.IsNullOrEmpty(recipient) || string.IsNullOrEmpty(senderEmailAddress))
+            if (string.IsNullOrEmpty(recipientEmail))
             {
                 return BadRequest("One or more input parameters are missing.");
             }
             try
             {
-                await _emailSender.SendEmailAsync(recipientName,recipient, senderEmailAddress);
+                await _emailSender.SendEmailAsync(recipientName,recipientEmail);
                 return Ok(new { VerificationCode = _emailSender.code });
             }
             catch (Exception)

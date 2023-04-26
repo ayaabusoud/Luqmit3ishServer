@@ -8,14 +8,13 @@ namespace Luqmit3ish_forMobile.Models
     {
      
         [Required(ErrorMessage = "User id number is required")]
-        public int user_id { get; set; }
-        public String name { get; set; }
-        public String description { get; set; }
-        public String type { get; set; }
-        public String photo { get; set; }
-        public int keep_listed { get; set; }
-        public String pick_up_time { get; set; }
+        public int UserId { get; set; }
+        public String Name { get; set; }
+        public String Description { get; set; }
+        public String Type { get; set; }
+        public String Photo { get; set; }
+        public int KeepValid { get; set; }
         [Required(ErrorMessage = "Dishes number is required")]
-        public int number { get; set; }
+        public int Quantity { get; set; }
     }
 }

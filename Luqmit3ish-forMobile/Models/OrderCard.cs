@@ -8,9 +8,8 @@ namespace Luqmit3ish_forMobile.Models
 {
     public class OrderCard
     {
-        public int id { get; set; }
-        public string name { get; set; }
-        public string image { get; set; }
-        public List<OrderDish> data { get; set; }
+        public int Id { get; set; }
+        public User Owner { get; set; }
+        public List<OrderDish> Orders { get; set; }
     }
 }

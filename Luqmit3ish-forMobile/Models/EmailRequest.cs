@@ -7,7 +7,7 @@ namespace Luqmit3ish_forMobile.Models
 {
     public class EmailRequest
     {
-        public string recipientName { get; set; }
-        public string recipientEmail { get; set; }
+        public string RecipientName { get; set; }
+        public string RecipientEmail { get; set; }
     }
 }

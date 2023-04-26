@@ -9,22 +9,22 @@ namespace Luqmit3ish_forMobile.Models
     public class OrderRequest
     {
         [Required(ErrorMessage = "restaurant id is required")]
-        public int res_id { get; set; }
+        public int ResId { get; set; }
 
         [Required(ErrorMessage = "charity id is required")]
-        public int char_id { get; set; }
+        public int CharId { get; set; }
 
         [Required(ErrorMessage = "dish id is required")]
-        public int dish_id { get; set; }
+        public int DishId { get; set; }
 
 
-        public DateTime date { get; set; }
+        public DateTime Date { get; set; }
         [Required(ErrorMessage = "number of dishes is required")]
 
-        public int number_of_dish { get; set; }
+        public int Quantity { get; set; }
         [Required(ErrorMessage = "recieve is required")]
 
-        public Boolean receive { get; set; }
+        public Boolean Receive { get; set; }
 
     }
 }

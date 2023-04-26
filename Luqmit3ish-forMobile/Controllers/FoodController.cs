@@ -53,19 +53,17 @@ namespace Luqmit3ish_forMobile.Controllers
             
                 return from d in _context.Dish
                        join u in _context.User
-                       on d.user_id equals u.id 
+                       on d.UserId equals u.Id 
                        select new
                        {
-                           id = d.id,
-                           restaurantId = d.user_id,
-                           dishName = d.name,
-                           restaurantName = u.name,
-                           description = d.description,
-                           type = d.type,
-                           photo = d.photo,
-                           keepValid = d.keep_listed,
-                           pickUpTime = d.pick_up_time,
-                           quantity = d.number
+                           Id = d.Id,
+                           DishName = d.Name,
+                           Description = d.Description,
+                           Type = d.Type,
+                           Photo = d.Photo,
+                           KeepValid = d.KeepValid,
+                           Quantity = d.Quantity,
+                           Restaurant = u
 
                         };
             
@@ -76,19 +74,17 @@ namespace Luqmit3ish_forMobile.Controllers
 
             var dishes = from d in _context.Dish
                          join u in _context.User
-                         on d.user_id equals u.id
+                         on d.UserId equals u.Id
                          select new DishCard
                          {
-                             id = d.id,
-                             restaurantId = d.user_id,
-                             dishName = d.name,
-                             restaurantName = u.name,
-                             description = d.description,
-                             type = d.type,
-                             photo = d.photo,
-                             keepValid = d.keep_listed,
-                             pickUpTime = d.pick_up_time,
-                             quantity = d.number
+                             Id = d.Id,
+                             DishName = d.Name,
+                             Description = d.Description,
+                             Type = d.Type,
+                             Photo = d.Photo,
+                             KeepValid = d.KeepValid,
+                             Quantity = d.Quantity,
+                             Restaurant = u
 
                          };
 
@@ -98,7 +94,7 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 foreach (DishCard dish in dishes)
                 {
-                    if (dish.restaurantName.ToLower().Contains(searchRequest.ToLower()))
+                    if (dish.Restaurant.Name.ToLower().Contains(searchRequest.ToLower()))
                     {
                         searchResult.Add(dish);
                     }
@@ -108,7 +104,7 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 foreach (DishCard dish in dishes)
                 {
-                    if (dish.dishName.ToLower().Contains(searchRequest.ToLower()))
+                    if (dish.DishName.ToLower().Contains(searchRequest.ToLower()))
                     {
                         searchResult.Add(dish);
                     }
@@ -118,7 +114,7 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 foreach (DishCard dish in dishes)
                 {
-                    if (dish.dishName.ToLower().Contains(searchRequest.ToLower()) || dish.restaurantName.ToLower().Equals(searchRequest.ToLower()))
+                    if (dish.DishName.ToLower().Contains(searchRequest.ToLower()) || dish.Restaurant.Name.ToLower().Equals(searchRequest.ToLower()))
                     {
                         searchResult.Add(dish);
                     }
@@ -168,7 +164,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 var allDishes = await _context.Dish.ToListAsync();
                 foreach(Dish dish in allDishes)
                 {
-                    if (dish.user_id == user_id)
+                    if (dish.UserId == user_id)
                         dishes.Add(dish);
                 }
                 return dishes;
@@ -196,14 +192,13 @@ namespace Luqmit3ish_forMobile.Controllers
                 }
                 var Dish = new Dish()
                 {
-                    name = dish.name,
-                    description = dish.description,
-                    keep_listed = dish.keep_listed,
-                    number = dish.number,
-                    photo = dish.photo,
-                    pick_up_time = dish.pick_up_time,
-                    type = dish.type,
-                    user_id = dish.user_id,
+                    Name = dish.Name,
+                    Description = dish.Description,
+                    KeepValid = dish.KeepValid,
+                    Quantity = dish.Quantity,
+                    Photo = dish.Photo,
+                    Type = dish.Type,
+                    UserId = dish.UserId,
                 };
                 _context.Dish.Add(Dish);
                 await _context.SaveChangesAsync();
@@ -221,21 +216,18 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return from d in _context.Dish
                    join u in _context.User
-                   on d.user_id equals u.id
-                   where d.id == id
+                   on d.UserId equals u.Id
+                   where d.Id == id
                    select new DishCard
                    {
-                       id = d.id,
-                       restaurantId = d.user_id,
-                       dishName = d.name,
-                       restaurantName = u.name,
-                       description = d.description,
-                       type = d.type,
-                       photo = d.photo,
-                       RestaurantImage = u.photo,
-                       keepValid = d.keep_listed,
-                       pickUpTime = d.pick_up_time,
-                       quantity = d.number
+                       Id = d.Id,
+                       DishName = d.Name,
+                       Description = d.Description,
+                       Type = d.Type,
+                       Photo = d.Photo,
+                       KeepValid = d.KeepValid,
+                       Quantity = d.Quantity,
+                       Restaurant = u
 
                    };
 
@@ -252,7 +244,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
-                if (id != dish.id || !ModelState.IsValid)
+                if (id != dish.Id || !ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
@@ -270,7 +262,7 @@ namespace Luqmit3ish_forMobile.Controllers
         public async Task<IActionResult> DeleteDish(int id)
         {
             try { 
-            var orders = _context.Order.Where(order => order.dish_id == id).ToList();
+            var orders = _context.Order.Where(order => order.DishId == id).ToList();
 
             _context.Order.RemoveRange(orders);
             await _context.SaveChangesAsync();
@@ -301,7 +293,8 @@ namespace Luqmit3ish_forMobile.Controllers
 
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish5;AccountKey=wf/sCEDpRkFExVY91mqUaZgzd/H0v1sl/a69oaGYtGGVMr9a4KnuHY5YCeKgtiQSWhiUoGEwjZyE+AStqTYKQA==;EndpointSuffix=core.windows.net"; string containerName = "photos";
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish1;AccountKey=urs+FFPvhubRO11inUtniXSQt8ciyXtYGiQ5o/eW0mcOnXmItgcEqh6xRORPNgvExqApnb0uQ5Fc+AStHKouvg==;EndpointSuffix=core.windows.net";
+                string containerName = "photos";
 
                 
                 CloudBlobClient blobClient = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
@@ -314,8 +307,8 @@ namespace Luqmit3ish_forMobile.Controllers
                     await blob.UploadFromStreamAsync(stream);
                 }
                 
-                Dish dish = await _context.Dish.FirstOrDefaultAsync(u => u.id == food_id);
-                dish.photo = blob.Uri.ToString();
+                Dish dish = await _context.Dish.FirstOrDefaultAsync(u => u.Id == food_id);
+                dish.Photo = blob.Uri.ToString();
                 await _context.SaveChangesAsync();
 
                 return Ok(blob.Uri.ToString());

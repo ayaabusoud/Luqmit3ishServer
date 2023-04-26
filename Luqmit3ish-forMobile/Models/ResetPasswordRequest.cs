@@ -8,9 +8,9 @@ namespace Luqmit3ish_forMobile.Models
     {
         [Required(ErrorMessage = "id is required")]
 
-        public int id { get; set; }
+        public int Id { get; set; }
         [Required(ErrorMessage = "Password is required")]
-        public String password { get; set; }
+        public String Password { get; set; }
 
 
     }

@@ -47,29 +47,29 @@ namespace Luqmit3ish_forMobile.Controllers
         public async Task<IActionResult> AddOrder([FromBody]OrderRequest request)
         {
             try {
-                var oldOrder = await _context.Order.SingleOrDefaultAsync(d => d.dish_id == request.dish_id &&
-                                                                          d.char_id == request.char_id &&
-                                                                          d.receive == false);
+                var oldOrder = await _context.Order.SingleOrDefaultAsync(d => d.DishId == request.DishId &&
+                                                                          d.CharId == request.CharId &&
+                                                                          d.Receive == false);
                 if (oldOrder == null)
                 {
                     var order = new Order()
                     {
-                        res_id = request.res_id,
-                        char_id = request.char_id,
-                        dish_id = request.dish_id,
-                        date = request.date,
-                        number_of_dish = request.number_of_dish,
-                        receive = request.receive,
+                        ResId = request.ResId,
+                        CharId = request.CharId,
+                        DishId = request.DishId,
+                        Date = request.Date,
+                        Quantity = request.Quantity,
+                        Receive = request.Receive,
                     };
-                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
-                    dish.number -= order.number_of_dish;
+                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.Id == order.DishId);
+                    dish.Quantity -= order.Quantity;
                     _context.Order.Add(order);
                     await _context.SaveChangesAsync();
                     return Ok("Added successfuly");
                 }
-                oldOrder.number_of_dish+= request.number_of_dish;
-                var newDish = await _context.Dish.SingleOrDefaultAsync(d => d.id == oldOrder.dish_id);
-                newDish.number -= request.number_of_dish;
+                oldOrder.Quantity += request.Quantity;
+                var newDish = await _context.Dish.SingleOrDefaultAsync(d => d.Id == oldOrder.DishId);
+                newDish.Quantity -= request.Quantity;
                 await _context.SaveChangesAsync();
                 return Ok("The number of dish increased successfully");
             }
@@ -112,7 +112,7 @@ namespace Luqmit3ish_forMobile.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var order = await _context.Order.FirstOrDefaultAsync(u => u.id == id);
+                var order = await _context.Order.FirstOrDefaultAsync(u => u.Id == id);
                 if (order is null)
                 {
                     return NotFound();
@@ -131,35 +131,32 @@ namespace Luqmit3ish_forMobile.Controllers
         {
             var orders = from o in _context.Order
                          join d in _context.Dish
-                         on o.dish_id equals d.id
+                         on o.DishId equals d.Id
                          select new OrderDish
                          {
-                             id = o.id,
-                             res_id = o.res_id,
-                             char_id = o.char_id,
-                             dish_id = o.dish_id,
-                             dishName = d.name,
-                             date = o.date,
-                             number_of_dish = o.number_of_dish,
-                             receive = o.receive
+                             Id = o.Id,
+                             ResId = o.ResId,
+                             CharId = o.CharId,
+                             Dish = d,
+                             Quantity = o.Quantity,
+                             Receive = o.Receive
                          };
 
             var myDictionary = orders.ToList()
-           .Where(x => x.receive == false && x.char_id == id)
-           .GroupBy(x => x.res_id)
+           .Where(x => x.Receive == false && x.CharId == id)
+           .GroupBy(x => x.ResId)
            .OrderBy(x => x.Key)
            .ToDictionary(x => x.Key, x => x.Select(y => y).ToList());
 
             List<OrderCard> myList = new List<OrderCard>();
             foreach (var item in myDictionary)
             {
-                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.Id == item.Key);
                 OrderCard result = new OrderCard
                 {
-                    id = item.Key,
-                    name = restaurant.name,
-                    image = restaurant.photo,
-                    data = item.Value
+                    Id = item.Key,
+                    Owner = restaurant,
+                    Orders = item.Value
                 };
                 myList.Add(result);
             }
@@ -171,35 +168,32 @@ namespace Luqmit3ish_forMobile.Controllers
         {
             var orders = from o in _context.Order
                          join d in _context.Dish
-                         on o.dish_id equals d.id
+                         on o.DishId equals d.Id
                          select new OrderDish
                          {
-                             id = o.id,
-                             res_id = o.res_id,
-                             char_id = o.char_id,
-                             dish_id = o.dish_id,
-                             dishName = d.name,
-                             date = o.date,
-                             number_of_dish = o.number_of_dish,
-                             receive = o.receive
+                             Id = o.Id,
+                             ResId = o.ResId,
+                             CharId = o.CharId,
+                             Dish = d,
+                             Quantity = o.Quantity,
+                             Receive = o.Receive
                          };
 
             var myDictionary = orders.ToList()
-           .Where(x => x.receive == receive && x.res_id == id)
-           .GroupBy(x => x.char_id)
+           .Where(x => x.Receive == receive && x.ResId == id)
+           .GroupBy(x => x.CharId)
            .OrderBy(x => x.Key)
            .ToDictionary(x => x.Key, x => x.Select(y => y).ToList());
 
             List<OrderCard> myList = new List<OrderCard>();
             foreach (var item in myDictionary)
             {
-                var charity = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                var charity = await _context.User.FirstOrDefaultAsync(u => u.Id == item.Key);
                 OrderCard result = new OrderCard
                 {
-                    id = item.Key,
-                    name = charity.name,
-                    image = charity.photo,
-                    data = item.Value
+                    Id = item.Key,
+                    Owner = charity,
+                    Orders = item.Value
                 };
                 myList.Add(result);
             }
@@ -211,35 +205,32 @@ namespace Luqmit3ish_forMobile.Controllers
         {
             var orders =  from o in _context.Order
                      join d in _context.Dish
-                     on o.dish_id equals d.id              
+                     on o.DishId equals d.Id              
                      select new OrderDish
                      {
-                     id = o.id,
-                     res_id = o.res_id,
-                     char_id = o.char_id,
-                     dish_id = o.dish_id,
-                     dishName = d.name,
-                     date = o.date,
-                     number_of_dish = o.number_of_dish,
-                     receive = o.receive
+                         Id = o.Id,
+                         ResId = o.ResId,
+                         CharId = o.CharId,
+                         Dish = d,
+                         Quantity = o.Quantity,
+                         Receive = o.Receive
                      };
 
              var myDictionary = orders.ToList()
-            .Where(x => x.receive == false)
-            .GroupBy(x => x.res_id)
+            .Where(x => x.Receive == false)
+            .GroupBy(x => x.ResId)
             .OrderBy(x => x.Key)
             .ToDictionary(x => x.Key, x => x.Select(y => y).ToList());
 
             List<OrderCard> myList = new List<OrderCard>();
             foreach (var item in myDictionary)
             {
-                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.Id == item.Key);
                 OrderCard result = new OrderCard
                 {
-                    id = item.Key,
-                    name = restaurant.name,
-                    image = restaurant.photo,
-                    data = item.Value
+                    Id = item.Key,
+                    Owner = restaurant,
+                    Orders = item.Value
                 };
                 myList.Add(result);
             }
@@ -254,10 +245,10 @@ namespace Luqmit3ish_forMobile.Controllers
 
             foreach (Order order in orders)
             {
-                if (order.res_id == restaurantId && order.char_id == charityId)
+                if (order.ResId == restaurantId && order.CharId == charityId)
                 {
-                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
-                    dish.number = dish.number + order.number_of_dish;
+                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.Id == order.DishId);
+                    dish.Quantity = dish.Quantity + order.Quantity;
                     _context.Order.Remove(order);
                     await _context.SaveChangesAsync();
                 }
@@ -270,8 +261,8 @@ namespace Luqmit3ish_forMobile.Controllers
         [HttpPatch("/api/CharityOrders/{id}/{operation}")]
         public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
         {
-            var order = await _context.Order.SingleOrDefaultAsync(o => o.id == id);
-            var food = await _context.Dish.SingleOrDefaultAsync(d => d.id == order.dish_id);
+            var order = await _context.Order.SingleOrDefaultAsync(o => o.Id == id);
+            var food = await _context.Dish.SingleOrDefaultAsync(d => d.Id == order.DishId);
             if (order == null)
             {
                 return NotFound();
@@ -279,14 +270,14 @@ namespace Luqmit3ish_forMobile.Controllers
 
             if (operation == "plus")
             {
-                order.number_of_dish++;
-                food.number--;
+                order.Quantity++;
+                food.Quantity--;
             }
             else
             {
-                order.number_of_dish--;
-                food.number++;
-                if (order.number_of_dish == 0)
+                order.Quantity--;
+                food.Quantity++;
+                if (order.Quantity == 0)
                 {
                     _context.Order.Remove(order);
                 }
@@ -304,17 +295,17 @@ namespace Luqmit3ish_forMobile.Controllers
             int max = 0;
             DishesOrder bestRestarant = null;
             var orders = _context.Order.ToList()
-           .Where(x => x.receive == true && x.date <= DateTime.Now && x.date >= DateTime.Now.AddMonths(-1))
-           .GroupBy(x => x.res_id)
-           .ToDictionary(x => x.Key, x => x.Sum(y => y.number_of_dish));
+           .Where(x => x.Receive == true && x.Date <= DateTime.Now && x.Date >= DateTime.Now.AddMonths(-1))
+           .GroupBy(x => x.ResId)
+           .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
 
             List<DishesOrder> myList = new List<DishesOrder>();
             foreach (var item in orders)
             {
-                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.id == item.Key);
+                var restaurant = await _context.User.FirstOrDefaultAsync(u => u.Id == item.Key);
                 DishesOrder result = new DishesOrder
                 {
-                    RestaurantName = restaurant.name,
+                    RestaurantName = restaurant.Name,
                     Dishes = item.Value
                 };
                 myList.Add(result);
@@ -336,8 +327,8 @@ namespace Luqmit3ish_forMobile.Controllers
             try
             {
                 var order = await _context.Order.FindAsync(id);
-                if (order.receive == true) return Ok();
-                order.receive = true;
+                if (order.Receive == true) return Ok();
+                order.Receive = true;
                 await _context.SaveChangesAsync();
                 return Ok();
             }

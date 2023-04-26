@@ -21,18 +21,18 @@ namespace Luqmit3ish_forMobile.Controllers
         [HttpPost("send")]
         public async Task<IActionResult> SendEmail([FromBody] EmailRequest emailRequest)
         {
-            if (string.IsNullOrEmpty(emailRequest.recipientEmail))
+            if (string.IsNullOrEmpty(emailRequest.RecipientEmail))
             {
                 return BadRequest("One or more input parameters are missing.");
             }
             try
             {
-                await _emailSender.SendEmailAsync(emailRequest.recipientName,emailRequest.recipientEmail);
+                await _emailSender.SendEmailAsync(emailRequest.RecipientName,emailRequest.RecipientEmail);
                 return Ok(new { VerificationCode = _emailSender.code });
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return StatusCode(500, "An error occurred while sending the email.");
+                return StatusCode(500, e.Message);
             }
         }
 

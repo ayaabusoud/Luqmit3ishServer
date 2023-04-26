@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Luqmit3ishBackend.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,16 +8,14 @@ namespace Luqmit3ish_forMobile.Models
 {
     public class DishCard
     {
-        public int  id  { get; set; }
-        public int restaurantId { get; set; }
-        public string dishName { get; set; }
-        public string restaurantName { get; set; }
-        public string description { get; set; }
-        public string type { get; set; }
-        public string photo { get; set; }
-        public int keepValid { get; set; }
-        public string pickUpTime { get; set; }
-        public int quantity { get; set; }
-        public string RestaurantImage { get; set; }
+        public int  Id  { get; set; }
+        public string DishName { get; set; }
+        public string Description { get; set; }
+        public string Type { get; set; }
+        public string Photo { get; set; }
+        public int KeepValid { get; set; }
+        public int Quantity { get; set; }
+        public User Restaurant { get; set; }
+
     }
 }

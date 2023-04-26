@@ -22,14 +22,14 @@ namespace Luqmit3ishBackend.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-                .HasKey(u => u.id);
+                .HasKey(u => u.Id);
 
             modelBuilder.Entity<Order>()
-                .HasKey(o => o.id);
+                .HasKey(o => o.Id);
 
 
             modelBuilder.Entity<Dish>()
-                .HasKey(d => d.id);
+                .HasKey(d => d.Id);
         }
     }
 

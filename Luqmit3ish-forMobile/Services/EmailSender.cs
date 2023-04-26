@@ -15,15 +15,20 @@ namespace Luqmit3ish_forMobile.Services
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Luqmit 3ish", "lumit3ish14@gmail.com"));
             message.To.Add(new MailboxAddress("", recipient));
-            message.Subject = "Welcome to Luqmit 3ish: Verify Your Account";
+            message.Subject = "Welcome to Luqmit 3ish: Verify Your Email";
 
             var random = new Random();
             code = random.Next(1000, 9999);
 
             var builder = new BodyBuilder();
-            builder.HtmlBody = string.Format("<p>Dear {0},</p>" +
+            builder.HtmlBody = string.Format(
+                                             "<img src='https://img.freepik.com/premium-vector/email-messagingemail-marketing-campaignflat-design-icon-vector-illustration_183665-226.jpg' alt='email' width='300' style='height: auto; display: block; ' />" +
+                                             "<p> Dear {0},</p>"+
+                                             "<p>Thank you for using <strong>Luqmit 3ish</strong> application to reduce food waste and fight hunger!" +
                                              "<p>Your verification code is: <strong>{1}</strong></p>" +
-                                             "<p>Thank you for using our service.</p>", recipientName, code);
+                                             "<p>With Regards,</p>" +
+                                             "<p>Luqmit 3ish</p>"
+                                             , recipientName, code);
             message.Body = builder.ToMessageBody();
 
             using var client = new SmtpClient();

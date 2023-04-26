@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -83,7 +86,7 @@ namespace Luqmit3ish_forMobile.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var user = await _context.User.FirstOrDefaultAsync(u => u.email == email);
+                var user = await _context.User.FirstOrDefaultAsync(u => u.Email == email);
                 if (user is null)
                 {
                     return NotFound();
@@ -111,7 +114,7 @@ namespace Luqmit3ish_forMobile.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var user = await _context.User.FirstOrDefaultAsync(u => u.id == id);
+                var user = await _context.User.FirstOrDefaultAsync(u => u.Id == id);
                 if (user is null)
                 {
                     return NotFound();
@@ -138,11 +141,11 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                user.password = EncryptDecrypt.EncodePasswordToBase64(user.password);
+                user.Password = EncryptDecrypt.EncodePasswordToBase64(user.Password);
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetUsers", new { id = user.id }, user);
+                return CreatedAtAction("GetUsers", new { id = user.Id }, user);
             }
             catch (Exception e)
             {
@@ -161,7 +164,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound();
                 }
-                if (id != user.id || !ModelState.IsValid)
+                if (id != user.Id || !ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
@@ -180,17 +183,17 @@ namespace Luqmit3ish_forMobile.Controllers
         try{
             ResetPasswordRequest request = new ResetPasswordRequest
             {
-                id = id,
-                password = newPassword,
+                Id = id,
+                Password = newPassword,
             };
 
-            var user = await _context.User.SingleOrDefaultAsync(u => u.id == request.id);
+            var user = await _context.User.SingleOrDefaultAsync(u => u.Id == request.Id);
 
             if (user == null)
             {
                 return NotFound("userNotFound");
             }
-            user.password = EncryptDecrypt.EncodePasswordToBase64(request.password);
+            user.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
             await _context.SaveChangesAsync();
             return Ok("Password updated");
             }catch (Exception e)
@@ -203,7 +206,7 @@ namespace Luqmit3ish_forMobile.Controllers
         {
             try
             {
-                var user = await _context.User.FirstOrDefaultAsync(x => x.email == request.Email);
+                var user = await _context.User.FirstOrDefaultAsync(x => x.Email == request.Email);
                 request.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
                 if (request.Email == null || request.Password == null)
                 {
@@ -213,7 +216,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest("User not found.");
                 }
-                if (user.password != request.Password)
+                if (user.Password != request.Password)
                 {
                     return BadRequest("The email or password is not correct");
                 }
@@ -228,29 +231,33 @@ namespace Luqmit3ish_forMobile.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(SignUpRequest request)
         {
-            if (_context.User.Any(u => u.email == request.email))
+            try
+            {
+
+            if (_context.User.Any(u => u.Email == request.Email))
             {
                 return BadRequest("user already exist!");
             }
             var user = new User()
             {
-                name = request.name,
-                email = request.email,
-                phone = request.phone,
-                password = request.password,
-                location = request.location,
-                type = request.type,
-                photo = request.photo
+                Name = request.Name,
+                Email = request.Email,
+                Phone = request.Phone,
+                Password = request.Password,
+                Type = request.Type,
             };
-            user.password = EncryptDecrypt.EncodePasswordToBase64(user.password);
+            user.Password = EncryptDecrypt.EncodePasswordToBase64(user.Password);
 
             _context.User.Add(user);
             await _context.SaveChangesAsync();
-
             return Ok("Added successfuly");
+            }catch(Exception )
+            {
+                return BadRequest();
+            }
 
         }
-        
+
         [HttpPost("UploadPhoto/{user_id}")]
         public async Task<IActionResult> UploadUserPhoto(IFormFile photo, int user_id)
         {
@@ -261,7 +268,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish5;AccountKey=wf/sCEDpRkFExVY91mqUaZgzd/H0v1sl/a69oaGYtGGVMr9a4KnuHY5YCeKgtiQSWhiUoGEwjZyE+AStqTYKQA==;EndpointSuffix=core.windows.net";
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish1;AccountKey=urs+FFPvhubRO11inUtniXSQt8ciyXtYGiQ5o/eW0mcOnXmItgcEqh6xRORPNgvExqApnb0uQ5Fc+AStHKouvg==;EndpointSuffix=core.windows.net";
                 string containerName = "photos";
 
 
@@ -275,8 +282,8 @@ namespace Luqmit3ish_forMobile.Controllers
                     await blob.UploadFromStreamAsync(stream);
                 }
 
-                User user = await _context.User.FirstOrDefaultAsync(u => u.id == user_id);
-                user.photo = blob.Uri.ToString();
+                User user = await _context.User.FirstOrDefaultAsync(u => u.Id == user_id);
+                user.Photo = blob.Uri.ToString();
                 await _context.SaveChangesAsync();
 
                 return Ok(blob.Uri.ToString());

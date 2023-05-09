@@ -1,5 +1,7 @@
+using Luqmit3ish_forMobile.Controllers;
 using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,10 +12,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Luqmit3ish_forMobile
@@ -30,6 +34,13 @@ namespace Luqmit3ish_forMobile
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IConfiguration config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+            services.AddSingleton(config);
+            services.AddScoped<UserController>();
+
             services.AddScoped<IPasswordHasher<Luqmit3ishBackend.Models.User>, PasswordHasher<User>>();
 
 
@@ -45,6 +56,27 @@ namespace Luqmit3ish_forMobile
             services.AddMvc(options =>
             {
                 options.SuppressAsyncSuffixInActionNames = false;
+            });
+
+            var key = Encoding.ASCII.GetBytes(Configuration["AppSettings:secretKey"]);
+
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(option =>
+            {
+                option.SaveToken = true;
+                option.RequireHttpsMetadata = false;
+                option.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+
+                };
             });
         }
 
@@ -62,6 +94,7 @@ namespace Luqmit3ish_forMobile
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

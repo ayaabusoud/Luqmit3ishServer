@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Luqmit3ish_forMobile.Controllers
 {
@@ -177,6 +178,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
 
+        [Authorize]
         [HttpPost("AddDish")]
         public async Task<IActionResult> AddeDish([FromBody] AddFoodRequest dish)
         {
@@ -234,7 +236,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<User>> UpdateDish(int id, [FromBody] Dish dish)
         {
@@ -258,6 +260,7 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDish(int id)
         {
@@ -282,7 +285,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
-        
+
+        [Authorize]
         [HttpPost("UploadPhoto/{food_id}")]
         public async Task<IActionResult> UploadPhoto(IFormFile photo, int food_id)
         {

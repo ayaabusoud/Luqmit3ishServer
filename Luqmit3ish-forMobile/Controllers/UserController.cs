@@ -3,17 +3,24 @@ using Luqmit3ish_forMobile.Models;
 using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -27,13 +34,18 @@ namespace Luqmit3ish_forMobile.Controllers
         private readonly DatabaseContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
 
+        private readonly IConfiguration _config;
 
-        public UserController(DatabaseContext context, IPasswordHasher<User> passwordHasher)
+
+        public UserController(DatabaseContext context, IPasswordHasher<User> passwordHasher, IConfiguration config)
         {
             _context = context;
+            _config = config;
             _passwordHasher = passwordHasher;
 
         }
+
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
@@ -49,6 +61,8 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return Ok(NoContent());
         }
+
+     
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserRegister>>> GetUsers()
         {
@@ -154,7 +168,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<UserRegister>> UpdateUser(int id, [FromBody] User user)
         {
@@ -177,6 +191,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+
+        [Authorize]
         [HttpPatch("resetPassword/{id}/{newPassword}")]
         public async Task<IActionResult> ResetPassword(int id, String newPassword)
         {
@@ -202,7 +218,7 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<ActionResult<string>> Login(LoginRequest request)
         {
             try
             {
@@ -220,7 +236,15 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest("The email or password is not correct");
                 }
-                return Ok($"Welcome Back {request.Email}");
+
+                var model = new TokenModel
+                {
+                    Email = request.Email,
+                    Token = await GenerateToken(user),
+                    Role = "User"
+                };
+
+                return model.Token;
             }
             catch (Exception e)
             {
@@ -228,8 +252,29 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-        [HttpPost("signup")]
-        public async Task<IActionResult> SignUp(SignUpRequest request)
+        private async Task<string> GenerateToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_config.GetSection("AppSettings:secretKey").Value);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+             new Claim(ClaimTypes.Role, user.Type)
+                }),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+                Expires = DateTime.UtcNow.AddYears(1)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var strToken = tokenHandler.WriteToken(token);
+            return await Task.FromResult(strToken);
+        }
+
+
+         [HttpPost("signup")]
+        public async Task<ActionResult<string>> SignUp(SignUpRequest request)
         {
             try
             {
@@ -250,7 +295,15 @@ namespace Luqmit3ish_forMobile.Controllers
 
             _context.User.Add(user);
             await _context.SaveChangesAsync();
-            return Ok("Added successfuly");
+
+                var model = new TokenModel
+                {
+                    Email = request.Email,
+                    Token = await GenerateToken(user),
+                    Role = "User"
+                };
+
+                return model.Token;
             }catch(Exception )
             {
                 return BadRequest();
@@ -258,6 +311,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
         }
 
+        [Authorize]
         [HttpPost("UploadPhoto/{user_id}")]
         public async Task<IActionResult> UploadUserPhoto(IFormFile photo, int user_id)
         {

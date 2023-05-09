@@ -1,6 +1,7 @@
 ﻿using Luqmit3ish_forMobile.Models;
 using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,8 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-         [HttpPost]
+        [Authorize]
+        [HttpPost]
         public async Task<IActionResult> AddOrder([FromBody]OrderRequest request)
         {
             try {
@@ -79,7 +81,7 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
@@ -126,6 +128,7 @@ namespace Luqmit3ish_forMobile.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("/api/CharityOrders/{id}")]
         public async Task<List<OrderCard>> GetCharityOrders(int id)
         {
@@ -163,6 +166,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
+        [Authorize]
         [HttpGet("/api/RestaurantOrders/{id}/{receive:bool}")]
         public async Task<List<OrderCard>> GetRestaurantOrders(int id, bool receive)
         {
@@ -201,6 +205,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
+
         [HttpGet("/api/AllCharitiesOrders")]
         public async Task<List<OrderCard>> GetAllCharityOrders()
         {
@@ -238,7 +243,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return myList;
         }
 
-
+        [Authorize]
         [HttpDelete("delete/{charityId}/{restaurantId}")]
         public async Task<IActionResult> DeleteOrderCard(int charityId = 0, int restaurantId = 0)
         {
@@ -257,8 +262,8 @@ namespace Luqmit3ish_forMobile.Controllers
 
             return Ok();
         }
-    
 
+        [Authorize]
         [HttpPatch("/api/CharityOrders/{id}/{operation}")]
         public async Task<IActionResult> UpdateOrderDishCount(int id, string operation)
         {
@@ -320,8 +325,8 @@ namespace Luqmit3ish_forMobile.Controllers
             }
             return bestRestarant;
         }
-            
 
+        [Authorize]
         [HttpPatch("/api/{id}/receive")]
         public async Task<IActionResult> UpdateOrderRecieveStatus(int id)
         {

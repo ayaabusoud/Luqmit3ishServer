@@ -293,7 +293,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish1;AccountKey=urs+FFPvhubRO11inUtniXSQt8ciyXtYGiQ5o/eW0mcOnXmItgcEqh6xRORPNgvExqApnb0uQ5Fc+AStHKouvg==;EndpointSuffix=core.windows.net";
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish8;AccountKey=cL2Tcoe7LOaQfDNtCln//MR82DdCOgxno4tFuwbm5jV4EYhA+RElaA5FoJYKRT9ZszYsYO8jFyjI+AStYV9tOQ==;EndpointSuffix=core.windows.net";
                 string containerName = "photos";
 
                 

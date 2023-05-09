@@ -1,4 +1,4 @@
-﻿using Luqmit3ish_forMobile.Encrypt;
+using Luqmit3ish_forMobile.Encode;
 using Luqmit3ish_forMobile.Models;
 using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
@@ -16,7 +16,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-
 namespace Luqmit3ish_forMobile.Controllers
 {
     [Route("api/Users")]
@@ -141,7 +140,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                user.Password = EncryptDecrypt.EncodePasswordToBase64(user.Password);
+                user.Password =Encrypt.EncryptPassword(user.Password);
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
 
@@ -193,33 +192,34 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return NotFound("userNotFound");
             }
-            user.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
-            await _context.SaveChangesAsync();
+                user.Password = Encrypt.EncryptPassword(request.Password);
+                await _context.SaveChangesAsync();
             return Ok("Password updated");
             }catch (Exception e)
             {
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(x => x.Email == request.Email);
-                request.Password = EncryptDecrypt.EncodePasswordToBase64(request.Password);
-                if (request.Email == null || request.Password == null)
-                {
-                    return BadRequest("Email and password should not be empty");
-                }
-                if (user is null)
+
+                if (user == null)
                 {
                     return BadRequest("User not found.");
                 }
-                if (user.Password != request.Password)
+
+                bool passwordMatches = Encrypt.VerifyPassword(request.Password, user.Password);
+
+                if (!passwordMatches)
                 {
                     return BadRequest("The email or password is not correct");
                 }
+
                 return Ok($"Welcome Back {request.Email}");
             }
             catch (Exception e)
@@ -227,6 +227,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+
 
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(SignUpRequest request)
@@ -246,7 +247,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 Password = request.Password,
                 Type = request.Type,
             };
-            user.Password = EncryptDecrypt.EncodePasswordToBase64(user.Password);
+            user.Password = Encrypt.EncryptPassword(user.Password);
 
             _context.User.Add(user);
             await _context.SaveChangesAsync();

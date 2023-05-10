@@ -265,14 +265,8 @@ namespace Luqmit3ish_forMobile.Controllers
                 }
 
 
-                var model = new TokenModel
-                {
-                    Email = request.Email,
-                    Token = await GenerateToken(user),
-                    Role = "User"
-                };
-
-                return model.Token;
+                var token = await GenerateToken(user);
+                return token;
             }
             catch (Exception e)
             {
@@ -324,15 +318,10 @@ namespace Luqmit3ish_forMobile.Controllers
             _context.User.Add(user);
             await _context.SaveChangesAsync();
 
-                var model = new TokenModel
-                {
-                    Email = request.Email,
-                    Token = await GenerateToken(user),
-                    Role = "User"
-                };
-
-                return model.Token;
-            }catch(Exception )
+                var token = await GenerateToken(user);
+                return token;
+            }
+            catch(Exception )
             {
                 return BadRequest();
             }

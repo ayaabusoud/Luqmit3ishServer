@@ -305,13 +305,16 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return BadRequest("user already exist!");
             }
-            var user = new User()
-            {
-                Name = request.Name,
-                Email = request.Email,
-                Phone = request.Phone,
-                Password = request.Password,
-                Type = request.Type,
+                var user = new User()
+                {
+                    Name = request.Name,
+                    Email = request.Email,
+                    Phone = request.Phone,
+                    Password = request.Password,
+                    Type = request.Type,
+                    Location = "Palestine",
+                    Photo = "https://luqmit3ish2.blob.core.windows.net/photos/DefaultProfile.png",
+                    OpeningHours = "11:00am-11:00pm"
             };
             user.Password = Encrypt.Encrypt.EncryptPassword(user.Password);
 

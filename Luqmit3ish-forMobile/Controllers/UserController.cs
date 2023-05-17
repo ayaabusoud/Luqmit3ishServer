@@ -55,6 +55,22 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return NotFound();
             }
+            if(user.Type == "Restaurant"){
+                var ordersToDelete = _context.Order.Where(o => o.ResId == user.Id);
+                _context.Order.RemoveRange(ordersToDelete);
+                _context.SaveChanges();
+
+                var dishesToDelete = _context.Dish.Where(o => o.UserId == user.Id);
+                _context.Dish.RemoveRange(dishesToDelete);
+                _context.SaveChanges();
+            }
+            else
+            {
+                var ordersToDelete = _context.Order.Where(o => o.CharId == user.Id);
+                _context.Order.RemoveRange(ordersToDelete);
+                _context.SaveChanges();
+            }
+            
 
             _context.User.Remove(user);
             await _context.SaveChangesAsync();
@@ -143,7 +159,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> CreateUser([FromBody] User user)
+        public async Task<ActionResult<string>> CreateUser([FromBody] User user)
         {
             try
             {
@@ -155,11 +171,17 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+
+                user.Location = "Palestine";
+                user.Photo = "https://luqmit3ish2.blob.core.windows.net/photos/DefaultProfile.png";
+                user.OpeningHours = "11:00am-11:00pm";
                 user.Password = Encrypt.Encrypt.EncryptPassword(user.Password);
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetUsers", new { id = user.Id }, user);
+                var token = await GenerateToken(user);
+                return token;
+
             }
             catch (Exception e)
             {
@@ -243,6 +265,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 return StatusCode(500, "Internal server error" + e.Message);
             }
         }
+
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(LoginRequest request)
         {
@@ -294,42 +317,7 @@ namespace Luqmit3ish_forMobile.Controllers
             return await Task.FromResult(strToken);
         }
 
-
-         [HttpPost("signup")]
-        public async Task<ActionResult<string>> SignUp(SignUpRequest request)
-        {
-            try
-            {
-
-            if (_context.User.Any(u => u.Email == request.Email))
-            {
-                return BadRequest("user already exist!");
-            }
-                var user = new User()
-                {
-                    Name = request.Name,
-                    Email = request.Email,
-                    Phone = request.Phone,
-                    Password = request.Password,
-                    Type = request.Type,
-                    Location = "Palestine",
-                    Photo = "https://luqmit3ish2.blob.core.windows.net/photos/DefaultProfile.png",
-                    OpeningHours = "11:00am-11:00pm"
-            };
-            user.Password = Encrypt.Encrypt.EncryptPassword(user.Password);
-
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
-
-                var token = await GenerateToken(user);
-                return token;
-            }
-            catch(Exception )
-            {
-                return BadRequest();
-            }
-
-        }
+  
 
         [Authorize]
         [HttpPost("UploadPhoto/{user_id}")]

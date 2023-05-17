@@ -180,7 +180,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
         [Authorize]
         [HttpPost("AddDish")]
-        public async Task<IActionResult> AddeDish([FromBody] AddFoodRequest dish)
+        public async Task<IActionResult> AddeDish([FromBody] Dish dish)
         {
             try
             {
@@ -192,20 +192,10 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var Dish = new Dish()
-                {
-                    Name = dish.Name,
-                    Description = dish.Description,
-                    KeepValid = dish.KeepValid,
-                    Quantity = dish.Quantity,
-                    Photo = dish.Photo,
-                    Type = dish.Type,
-                    UserId = dish.UserId,
-                };
-                _context.Dish.Add(Dish);
+                _context.Dish.Add(dish);
                 await _context.SaveChangesAsync();
 
-                return Ok(Dish);
+                return Ok(dish);
             }
             catch (Exception e)
             {

@@ -9,6 +9,8 @@ namespace Luqmit3ishBackend.Models
 {
     public class Order
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "restaurant id is required")]
@@ -19,9 +21,11 @@ namespace Luqmit3ishBackend.Models
 
         [Required(ErrorMessage = "dish id is required")]
         public int DishId { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Date { get; set; }
 
-        [Required(ErrorMessage = "number of dishes is required")]
+        [Required(ErrorMessage = "Quantity is required")]
         public int Quantity { get; set; }
 
         [Required(ErrorMessage = "recieve is required")]

@@ -82,7 +82,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
      
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserRegister>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             try
             {
@@ -105,7 +105,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpGet("{email}")]
-        public async Task<ActionResult<UserRegister>> GetUserByEmail(string email)
+        public async Task<ActionResult<User>> GetUserByEmail(string email)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace Luqmit3ish_forMobile.Controllers
         }
 
         [HttpGet("id/{id}")]
-        public async Task<ActionResult<UserRegister>> GetUserById(int id)
+        public async Task<ActionResult<User>> GetUserById(int id)
         {
             try
             {
@@ -194,7 +194,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<ActionResult<UserRegister>> UpdateUser(int id, [FromBody] User user)
+        public async Task<ActionResult<User>> UpdateUser(int id, [FromBody] User user)
         {
             try
             {

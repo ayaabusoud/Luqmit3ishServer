@@ -46,26 +46,22 @@ namespace Luqmit3ish_forMobile.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddOrder([FromBody]OrderRequest request)
+        public async Task<IActionResult> AddOrder([FromBody]Order request)
         {
             try {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
                 var oldOrder = await _context.Order.SingleOrDefaultAsync(d => d.DishId == request.DishId &&
                                                                           d.CharId == request.CharId &&
                                                                           d.Receive == false);
                 if (oldOrder == null)
                 {
-                    var order = new Order()
-                    {
-                        ResId = request.ResId,
-                        CharId = request.CharId,
-                        DishId = request.DishId,
-                        Date = request.Date,
-                        Quantity = request.Quantity,
-                        Receive = request.Receive,
-                    };
-                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.Id == order.DishId);
-                    dish.Quantity -= order.Quantity;
-                    _context.Order.Add(order);
+                    var dish = await _context.Dish.SingleOrDefaultAsync(d => d.Id == request.DishId);
+                    dish.Quantity -= request.Quantity;
+                    _context.Order.Add(request);
                     await _context.SaveChangesAsync();
                     return Ok("Added successfuly");
                 }

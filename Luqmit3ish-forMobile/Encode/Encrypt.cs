@@ -1,15 +1,16 @@
+using Luqmit3ish_forMobile.Encode;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace Luqmit3ish_forMobile.Encrypt
+namespace Luqmit3ish_forMobile.Encode
 {
-    public static class Encrypt
+     class Encrypt : IEncrypt
     {
 
-        public static string EncryptPassword(string password)
+        public string EncryptPassword(string password)
         {
             // Generate a salt value
             byte[] salt;
@@ -28,7 +29,7 @@ namespace Luqmit3ish_forMobile.Encrypt
             return savedPasswordHash;
         }
 
-        public static bool VerifyPassword(string password, string savedPasswordHash)
+        public bool VerifyPassword(string password, string savedPasswordHash)
         {
             // Retrieve the salt value from the stored hash
             byte[] hashBytes = Convert.FromBase64String(savedPasswordHash);

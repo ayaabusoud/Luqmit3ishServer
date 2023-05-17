@@ -1,4 +1,4 @@
-using Luqmit3ish_forMobile.Encrypt;
+using Luqmit3ish_forMobile.Encode;
 using Luqmit3ish_forMobile.Models;
 using Luqmit3ishBackend.Data;
 using Luqmit3ishBackend.Models;
@@ -30,6 +30,7 @@ namespace Luqmit3ish_forMobile.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IEncrypt _encrypt;
         private string key = "E546C8DF278CD5931069B522E695D4F2";
         private readonly DatabaseContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
@@ -42,6 +43,7 @@ namespace Luqmit3ish_forMobile.Controllers
             _context = context;
             _config = config;
             _passwordHasher = passwordHasher;
+            _encrypt = new Encrypt();
 
         }
 
@@ -175,7 +177,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 user.Location = "Palestine";
                 user.Photo = "https://luqmit3ish2.blob.core.windows.net/photos/DefaultProfile.png";
                 user.OpeningHours = "11:00am-11:00pm";
-                user.Password = Encrypt.Encrypt.EncryptPassword(user.Password);
+                user.Password = _encrypt.EncryptPassword(user.Password);
                 _context.User.Add(user);
                 await _context.SaveChangesAsync();
 
@@ -231,7 +233,7 @@ namespace Luqmit3ish_forMobile.Controllers
             {
                 return NotFound("userNotFound");
             }
-            user.Password = Encrypt.Encrypt.EncryptPassword(request.Password);
+            user.Password = _encrypt.EncryptPassword(request.Password);
             await _context.SaveChangesAsync();
             return Ok("Password updated");
             }catch (Exception e)
@@ -256,7 +258,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return NotFound("userNotFound");
                 }
-                user.Password = Encrypt.Encrypt.EncryptPassword(request.Password);
+                user.Password = _encrypt.EncryptPassword(request.Password);
                 await _context.SaveChangesAsync();
                 return Ok("Password updated");
             }
@@ -280,7 +282,7 @@ namespace Luqmit3ish_forMobile.Controllers
                 {
                     return BadRequest("User not found.");
                 }
-                bool passwordMatches = Encrypt.Encrypt.VerifyPassword(request.Password, user.Password);
+                bool passwordMatches = _encrypt.VerifyPassword(request.Password, user.Password);
 
                 if (!passwordMatches)
                 {
@@ -310,7 +312,7 @@ namespace Luqmit3ish_forMobile.Controllers
              new Claim(ClaimTypes.Role, user.Type)
                 }),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Expires = DateTime.UtcNow.AddYears(1)
+                Expires = DateTime.UtcNow.AddMonths(1)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var strToken = tokenHandler.WriteToken(token);
@@ -330,7 +332,7 @@ namespace Luqmit3ish_forMobile.Controllers
 
             try
             {
-                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish8;AccountKey=cL2Tcoe7LOaQfDNtCln//MR82DdCOgxno4tFuwbm5jV4EYhA+RElaA5FoJYKRT9ZszYsYO8jFyjI+AStYV9tOQ==;EndpointSuffix=core.windows.net";
+                string connectionString = "DefaultEndpointsProtocol=https;AccountName=luqmit3ish7;AccountKey=YLxG10fBFBQF0UAI6C2IcvnGThtkKOGiix9i/lEwuPuzPiyYNrob755YPOGoEmxBLUzs8w5uVNVy+AStr6F1Fg==;EndpointSuffix=core.windows.net";
                 string containerName = "photos";
 
 
